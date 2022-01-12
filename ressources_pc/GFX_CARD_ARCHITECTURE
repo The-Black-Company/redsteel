@@ -1,0 +1,64 @@
+################################################################################
+#                                                                              #
+#  ##########################################################################  #
+#  #   #   #   ##   #   #   #   # #########   # ### # # # ###   #   #   #   #  #
+#  # # # ### ## # #### ## ### ### ######### ###  #  # # # ### # ## ## # # # #  #
+#  #  ##   # ## #   ## ##   #   # #########   # # # # # # ###   ## ## # #  ##  #
+#  # # # ### ## ### ## ## ### ### ######### ### ### # # # ### # ## ## # # # #  #
+#  # # #   #   ##   ## ##   #   #   #######   # ### #   #   # # ## ##   # # #  #
+#  ##########################################################################  #
+#                                                                              #
+################################################################################
+#                                                                              #
+#        REDSTEEL Video card: "TurboFX GeBansheeForce 2000RTX Voodoo"          #
+#                 Carte graphique avec accelleration 2D                        #
+#                                                                              #
+################################################################################
+#                                                                              #
+#  La carte vidéo présente aussi fonctionne de la façon suivante:              #
+#    0000: Largeur de l'image mise à l'écran                                   #
+#    0001: Hauteur de l'image mise à l'écran                                   #
+#    0002: Champ de bit indiquant quel couche doit être affiché à l'écran      #
+#          Chaque bit correspond à une couche. 1 indiquant l'affichage.        #
+#    0003: Une valeur de 0 indique que la carte est prête pour recevoir des    #
+#          pixels sur la couche précisée.                                      #
+#    0004: Champ de bit de demande de remplissage en couleur de couche         #
+#    0005-0006: Couleur du remplissage de la couche indiquée, 16 * 2 bits.     #
+#    0007: Demande de fusion des plans allant du plus haut jusqu'à celui       #
+#          indiqué.                                                            #
+#    0008: Demande de dessin de ligne sur les couches indique par champ de bit #
+#    0009: Couleur de la ligne. Chaque couleur est sur 2 bits.                 #
+#    000A-000B: Position en X début->fin de la ligne.                          #
+#    000C-000D: Position en Y début->fin de la ligne.                          #
+#    000E-000F: Réservé                                                        #
+#    0010-002F: Réservé                                                        #
+#                                                                              #
+#    Les fonctionnalités situés des adresses 6 à C ne sont actuellement pas    #
+#    supportés.                                                                #
+#                                                                              #
+#    Les deux premiers bytes contiennent la largeur et la hauteur d'un tampon  #
+#    graphique.                                                                #
+#    Ensuite se situe unique byte jouant le rôle de champ de bits indiquant    #
+#    quels tampons graphiques sont affichés.                                   #
+#    Elle dispose ensuite d'autant de tampons graphiques que son espace le     #
+#    permet.                                                                   #
+#    L'affichage d'un espace graphique est conditionné à la mise à 1 de son    #
+#    bit dans l'unique byte de démarrage.                                      #
+#                                                                              #
+#  Une couche graphique est constitué de la façon suivante:                    #
+#   - 4 bytes permettent de determiner 4 couleurs differentes.                 #
+#     - Un byte de couleur est constitué de 4 bits rouge, 4 bits verts, 4 bits #
+#       bleu suivi d'un niveau de transparence sur 4 bits.                     #
+#       La transparence est actuellement "tout ou rien". 0 signifie opaque.    #
+#   - Ensuite commence un espace faisant largeur*hauteur divisé par 8 bytes    #
+#     correspondant à une image de largeur*hauteur pixels.                     #
+#     Chaque pixel fait donc 2 bits, chaque byte contenant donc 8 pixels.      #
+#                                                                              #
+#  L'accumulation de plans permet donc de multiplier le nombre de couleurs     #
+#  affichés au sacrifice de la resolution, chaque plan permettant d'ajouter    #
+#  4 couleurs.                                                                 #
+#									       #
+#  La mise a jour de cette video afin d'y ajouter la transparence permettra    #
+#  de générer des couleurs supplémentaires en jouant sur la superposition.     #
+#                                                                              #
+################################################################################

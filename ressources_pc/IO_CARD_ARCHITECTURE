@@ -1,0 +1,42 @@
+################################################################################
+#                                                                              #
+#  ##########################################################################  #
+#  #   #   #   ##   #   #   #   # #########   # ### # # # ###   #   #   #   #  #
+#  # # # ### ## # #### ## ### ### ######### ###  #  # # # ### # ## ## # # # #  #
+#  #  ##   # ## #   ## ##   #   # #########   # # # # # # ###   ## ## # #  ##  #
+#  # # # ### ## ### ## ## ### ### ######### ### ### # # # ### # ## ## # # # #  #
+#  # # #   #   ##   ## ##   #   #   #######   # ### #   #   # # ## ##   # # #  #
+#  ##########################################################################  #
+#                                                                              #
+################################################################################
+#                                                                              #
+#                              REDSTEEL I/O CARD                               #
+#                           AND MATHEMATICAL DEVICE                            #
+#                                                                              #
+################################################################################
+#                                                                              #
+#  Etat de l'art: Seule sqrt et random sont implémenté.                        #
+#                                                                              #
+# 0000 - Valeur aléatoire                                                      #
+# 0001 - Position de la souris en X                                            #
+# 0002 - Position de la souris en Y                                            #
+# 0003 - Quels boutons sont enfoncés sur a souris: 1 bouton par bit            #
+# 0004 - Position de la molette                                                #
+# 0005 000C - Touches du clavier                                               #
+# 000D 000E - Compteur de cycle, 000D est le poid fort.                        #
+# 000F - Horloge temps réel en deciseconde                                     #
+# 0010 - Accumulation de temps.                                                #
+#                                                                              #
+# 0400 - Demande de calcul des fonctions. Mis a zero dès le calcul fait.       #
+# 0401 0402 - Paramètre de la fonction et sortie de la fonction sqrt           #
+# 0403 0404 - cosinus, en dixieme de degré                                     #
+# 0405 0406 - sinus, en dixieme de degré                                       #
+# 0407 0408 - tan, en dixieme de degré                                         #
+#                                                                              #
+# 0800 08FF - Adresse de la donnée à imprimer                                  #
+# 0900 - Niveau d'impression                                                   #
+# 0901 - Longueur de la donnée à imprimer                                      #
+#                                                                              #
+# 0C00 - Reste de la mémoire du péripherique                                   #
+#                                                                              #
+################################################################################

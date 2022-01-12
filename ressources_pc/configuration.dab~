@@ -1,0 +1,4 @@
+Debug=true
+CPU="./libredsteel-cpu.so"
+Video="./libredsteel-video.so"
+IO="./libredsteel-io.so"

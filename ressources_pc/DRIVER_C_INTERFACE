@@ -1,0 +1,55 @@
+################################################################################
+#                                                                              #
+#  ##########################################################################  #
+#  #   #   #   ##   #   #   #   # #########   # ### # # # ###   #   #   #   #  #
+#  # # # ### ## # #### ## ### ### ######### ###  #  # # # ### # ## ## # # # #  #
+#  #  ##   # ## #   ## ##   #   # #########   # # # # # # ###   ## ## # #  ##  #
+#  # # # ### ## ### ## ## ### ### ######### ### ### # # # ### # ## ## # # # #  #
+#  # # #   #   ##   ## ##   #   #   #######   # ### #   #   # # ## ##   # # #  #
+#  ##########################################################################  #
+#                                                                              #
+################################################################################
+#                                                                              #
+#  Le logiciel Remu utilise des plugins pour contenir ses périphériques ainsi  #
+#  que son CPU.                                                                #
+#                                                                              #
+#  Les plugins doivent respecter une interface stricte afin d'être compatible. #
+#                                                                              #
+################################################################################
+#                                                                              #
+#  Fonctions généralement attendues:                                           #
+#                                                                              #
+#  void set_memory(byte *mem)                                                  #
+#    Permet de transmettre le bout de mémoire associé au périphérique.         #
+#                                                                              #
+#  void clock(bool up)                                                         #
+#    Indique que l'horloge de l'ordinateur a changé d'état.                    #
+#                                                                              #
+#  void run_device(void)                                                       #
+#    Effectue l'initialisation du périphérique.                                #
+#                                                                              #
+################################################################################
+#                                                                              #
+#  Plugin CPU:                                                                 #
+#                                                                              #
+#  byte get_register(const char *name, int depth)                              #
+#    Récupère le registre dont le nom est name au niveau de profondeur d'appel #
+#    depth.                                                                    #
+#                                                                              #
+################################################################################
+#                                                                              #
+#  Plugin vidéo:                                                               #
+#                                                                              #
+#  bool transfert_pixel(t_bunny_pixelarray *screen)                            #
+#    Effectue le transfert des pixels depuis le périphérique vers l'écran de   #
+#    l'émulateur.                                                              #
+#                                                                              #
+################################################################################
+#                                                                              #
+#  Plugin clavier:                                                             #
+#                                                                              #
+#  void set_key_input(int key, bool down)                                      #
+#    Transfère l'état d'une touche du clavier depuis l'émulateur vers le       #
+#    périphérique.                                                             #
+#                                                                              #
+################################################################################

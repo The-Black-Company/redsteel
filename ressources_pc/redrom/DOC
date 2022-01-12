@@ -1,0 +1,36 @@
+################################################################################
+#                                                                              #
+#  ##########################################################################  #
+#  #   #   #   ##   #   #   #   # #########   # ### # # # ###   #   #   #   #  #
+#  # # # ### ## # #### ## ### ### ######### ###  #  # # # ### # ## ## # # # #  #
+#  #  ##   # ## #   ## ##   #   # #########   # # # # # # ###   ## ## # #  ##  #
+#  # # # ### ## ### ## ## ### ### ######### ### ### # # # ### # ## ## # # # #  #
+#  # # #   #   ##   ## ##   #   #   #######   # ### #   #   # # ## ##   # # #  #
+#  ##########################################################################  #
+#                                                                              #
+################################################################################
+#                                                                              #
+#  REDROM 1.0 est le BIOS du RedSteel.                                         #
+#                                                                              #
+#  Le rôle de ce BIOS est de fournir aux programmes des outils fondamentaux.   #
+#  Son fonctionnement est simple: il saute à l'adresse de la cartouche,        #
+#  provoquant l'execution du programme qu'elle contient.                       #
+#                                                                              #
+#  L'intégralité de sa mémoire sert à contenir des éléments qui peuvent être   #
+#  utile à ces programmes. Ci-dessous, voici les outils actuellement dispo:    #
+#                                                                              #
+#  0003: Début d'une table de 95 caractères de 5*7 pixels sur 2 bits chacun.   #
+#        Cette table correspond aux caractères ASCII imprimables.              #
+#        Chaque ligne mesure 60 bytes de large, dont 10 bits inutilisés.       #
+#        Elle fait donc au total 420 bytes.                                    #
+#  0420: memset(IO*data, I1 len, I2 value)                                     #
+#  0440: memcpy(IO*dest, I1*src, I2 len)                                       #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+################################################################################

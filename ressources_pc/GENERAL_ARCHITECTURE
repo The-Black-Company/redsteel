@@ -1,0 +1,165 @@
+################################################################################
+#                                                                              #
+#  ##########################################################################  #
+#  #   #   #   ##   #   #   #   # #########   # ### # # # ###   #   #   #   #  #
+#  # # # ### ## # #### ## ### ### ######### ###  #  # # # ### # ## ## # # # #  #
+#  #  ##   # ## #   ## ##   #   # #########   # # # # # # ###   ## ## # #  ##  #
+#  # # # ### ## ### ## ## ### ### ######### ### ### # # # ### # ## ## # # # #  #
+#  # # #   #   ##   ## ##   #   #   #######   # ### #   #   # # ## ##   # # #  #
+#  ##########################################################################  #
+#                                                                              #
+################################################################################
+#                                                                              #
+#  Le RedSteel est un ordinateur 16 bits.                                      #
+#  Son byte est de 16 bits et non de 8.                                        #
+#  Son bus d'adresse est de 16 bits. Il y a donc 65 536 bytes d'adressage.     #
+#  Ce qui fait 131 072 octets d'espace disponible.			       #
+#  Ses registres mesurent tous 16 bits.	    	    	      		       #
+#  Les données manipulées font 16 bits.					       #
+#                                                                              #
+#  Le RedZ, micro-processeur du RedSteel, dispose de 8 registres globaux.      #
+#  Les registres globaux sont:                                                 #
+#  - Le PC, program counter, qui indique l'instruction en cours d'execution.   #
+#  - Le SR, status register, qui indique par ses bits l'état du processeur:    #
+#    _ ZR: Zero. La précédente opération a donné un résultat de zéro.          # //0
+#    _ CR: Carry. La précédente opération a donné un résultat avec retenue.    # //1
+#    _ OR: Overflow. La précédente opération a donné un résultat dépassant la  # //2
+#          capacité du processeur.                                             #
+#    _ NG: Negative. La précédente opération a donné un résultat négatif.      # //3
+#    _ EQ: Equal. La précédente comparaison indique une égalité.               # //4
+#    _ DF: Different. Une différence.                                          # //5
+#    _ LT: Lesser than. Que l'opérande gauche était plus petite.               # //6
+#    _ LE: Lesser or equal. Que l'opérande gauche était plus petite ou égale.  # //7
+#    _ GT: Greater than. Que l'opérande gauche était plus grande.              # //8
+#    _ GE: Greater or equal. Qu'elle était plus grande ou égale.               # //9
+#    _ CD: Call depth. Indique le nombre d'appel de fonction en cours.         # //10
+#  - Le SP, stack pointer, qui pointe sur le haut d'une pile, si elle existe.  #
+#  - Les G0, G1, G2, G3 et G4 qui sont disponible pour n'importe quel usage.   #
+#									       #
+#  Le micro-processeur RedZ dispose de registre locaux, qui sont propre à      #
+#  la fonction dans laquelle le programme se situe actuellement. 	       #
+#  Ces registres sont:							       #
+#  - I0 à I7: Les paramètres de la fonction.				       #
+#  - L0 à L7: Les variables locales de la fonction.			       #
+#  - O0 à O7: Les paramètres à envoyer à une fonction.			       #
+#   I0/O0 est l'emplacement de valeur de retour de fonction.	     	       #
+#   I1/O1 est l'emplacement de valeur de retour d'erreur de fonction.	       #
+#   I7/O7 contiendra toujours l'endroit ou revenir après un appel de fonction. #
+#									       #
+#  Il y a donc 32 registres en permanence accessible, numéroté de 0 à 31,      #
+#  dans l'ordre dans lequel ils ont été donné.	      	       	      	       #
+#    	      	  	       	       	     				       #
+#  Le micro-processeur RedZ dispose d'une profondeur d'appel de 128 appels.    #
+#  Cela signifie que si vous faites plus de 128 appels de fonctions, le	       #
+#  micro-processeur rebouclera sur l'appel 0. 	       	  	     	       #
+#  Cela signifie que le micro-processeur dispose en vérité de 8 + 16 * 128     #
+#  registres de 16 bits. (Les globaux + LX + IX/OX, ces deux derniers étant    #
+#  les mêmes présentés différements.) 	     	    	     	      	       #
+#									       #
+#  Le RedZ est petit-boutiste.						       #
+#      	     	       							       #
+################################################################################
+#      	     	       							       #
+#  La structure d'une instruction du RedZ est la suivante:		       #
+#    Une instruction mesure 3 bytes. 	      	 			       #
+#    Une instruction peut prendre trois formes:				       #
+#    	- INSTRUCTION OPERANDE1 OPERANDE2				       #
+#	- INSTRUCTION OPERANDE						       #
+#	- INSTRUCTION 							       #
+#									       #
+#    Le premier byte est l'instruction est consituté de la façon suivante:     #
+#      	     	       							       #
+#     +---+								       #
+#     |   | OPCODE: Numéro d'instruction. +Registres modifiés		       #
+#     | 6 | 00 0000: SET A B (B  = A) ZR NG       10 0000:		       # 0
+#     |   | 00 0001: ADD A B (B += A) ZR CR OV NG 10 0001:		       # 1
+#     | B | 00 0010: SUB A B (B -= A) ZR CR OV NG 10 0010:		       # 2
+#     | I | 00 0011: AND A B (B &= A) ZR          10 0011:		       # 3
+#     | T | 00 0100: IOR A B (B |= A) ZR          10 0100:		       # 4
+#     | S | 00 0101: XOR A B (B ^= A) ZR          10 0101:		       # 5
+#     |   | 00 0110: CMP A B  LT HT LE GE EQ DF   10 0110:		       # 6
+#     |   | 00 0111: IFC A B  (goto CR ? A : B)   10 0111:		       # 7
+#     |   | 00 1000: IFZ A B  (goto ZR ? A : B)   10 1000:		       # 8
+#     |   | 00 1001: IFO A B  (goto OV ? A : B)   10 1001:		       # 9
+#     |   | 00 1010: IF- A B  (goto NG ? A : B)   10 1010:		       # 10
+#     |   | 00 1011: IF< A B  (goto LT ? A : B)   10 1011:		       # 11
+#     |   | 00 1100: IF> A B  (goto GT ? A : B)   10 1100:		       # 12
+#     |   | 00 1101: IF<= A B (goto LE ? A : B)   10 1101:		       # 13
+#     |   | 00 1110: IF>= A B (goto GE ? A : B)   10 1110:		       # 14
+#     |   | 00 1111: IF= A B  (goto EQ ? A : B)   10 1111:		       # 15
+#     |   | 01 0000: IF! A B  (goto DF ? A : B)   11 0000:		       # 16
+#     |   | 01 0001: CAL A    (O7=PC; PC=A; CD++) 11 0001:		       # 17
+#     |   | 01 0010: RET      (PC=O7; CD--)       11 0010:		       # 18
+#     |   | 01 0011: SH> A B (B >>= A) ZR         11 0011:		       # 19
+#     |   | 01 0100: SH< A B (B <<= A) CR OV ZR   11 0100:		       # 20
+#     |   | 01 0101: MUL A B (B *= A) CR ZR OV NG 11 0101:		       # 21
+#     |   | 01 0110: DIV A B (B /= A) ZR OV NG    11 0110:		       # 22
+#     |   | 01 0111:			          11 0111:		       #
+#     |   | 01 1000:			          11 1000:		       #
+#     |   | 01 1001:			          11 1001:		       #
+#     |   | 01 1010:			          11 1010:		       #
+#     |   | 01 1011:			          11 1011:		       #
+#     |   | 01 1100:			          11 1100:		       #
+#     |   | 01 1101:			          11 1101:		       #
+#     |   | 01 1110:			          11 1110: 		       #
+#     |   | 01 1111:			          11 1111: HCF Debug	       #
+#     +---+								       #
+#     | 2 | Mode d'accès pour le premier opérande.			       #
+#     |   | 00: Immédiat (La valeur est écrite dans l'instruction)	       # 0      #
+#     | B | 01: Adresse (La valeur est à l'adresse écrite dans l'instruction)  # 1  $
+#     | I | 10: Numéro de registre (La valeur est dans un registre)            # 2
+#     | T | 11:	Adresse dans registre (La valeur est à l'adresse contenue      # 3  []
+#     | S |	dans le registre.					       #
+#     +---+								       #
+#     |   | Modification faite au premier opérande si c'est un registre.       #
+#     | 3 | 000: Pas de modificiation                                          # 0
+#     |   | 001: X++							       # 1
+#     | B | 010: X--							       # 2
+#     | I | 011: ++X							       # 3
+#     | T | 100: --X							       # 4
+#     | S | 101: --X--							       # 5
+#     |   | 110: ++X++ 							       # 6
+#     +---+								       #
+#     | 2 | Mode d'accès pour le second opérande.			       #
+#     |   | 00: Pas de seconde opérande					       # 0
+#     | B | 01: Adresse (La valeur est à l'adresse écrite dans l'instruction)  # 1    $
+#     | I | 10: Numéro de registre (La valeur est dans un registre)	       # 2
+#     | T | 11: Adresse dans registre (La valeur est à l'adresse contenue      # 3
+#     | S |	dans le registre					       #
+#     +---+								       #
+#     |   | Modification faite au second opérande si c'est un registre.	       #
+#     | 3 | 000: Pas de modificiation                                          # 0
+#     |   | 001: X++							       # 1
+#     | B | 010: X--							       # 2
+#     | I | 011: ++X							       # 3
+#     | T | 100: --X							       # 4
+#     | S | 101: --X--							       # 5
+#     |   | 110: ++X++ 							       # 6
+#     +---+								       #
+#      	     	       							       #
+################################################################################
+#									       #
+#  L'architecture du RedSteel est la suivante:				       #
+#  		     	      	     					       #
+#    Chaque "segment" mesure 8 kibi byte, ce qui correspond a 16 kibi octet    #
+#    sur PC.	      	       	    	     	 	      	      	       #
+#    	 								       #
+#    La plage d'adresse 000X XXXX XXXX XXXX est réservé à la ROM.	       #
+#    La ROM est chargée via la ligne de commande sous le nom "rom.red".	       #
+#									       #
+#    Ma plage d'adresse 001X XXXX XXXX XXXX est réservé à la "cartouche".      #
+#    La cartouche est l'élément contenant le programme principal dont on       #
+#    souhaite l'execution par le RedSteel. Elle est passée en paramètre avec   #
+#    l'extension .red.	      	 	   	    	      		       #
+#    		      	    	    	       				       #
+#    La plage d'adresse 010X XXXX XXXX XXXX est réservé à la RAM.	       #
+#    	      		     	       	    		     		       #
+#    Les plage d'adresses 011, 100, 101, 110 et 111 sont réservés au	       #
+#    périphériques, dans l'ordre suivant:    	    	 	  	       #
+#      - Périphérique de saisie (Clavier, souris)			       #
+#      - Carte graphique 		  				       #
+#      - Carte son							       #
+#      - Gestionnaire d'espace de stockage				       #
+#      - Carte réseau 	       	  					       #
+#      	       								       #
+################################################################################

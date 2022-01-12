@@ -1,0 +1,12 @@
+
+SRC = $(wildcard src/*.rs)
+PRG = $(SRC:.rs=)
+
+all: $(PRG)
+$(PRG):
+	@rasm.php -I./../redrom/include/ -I./../asm/include -I./include/ $@.rs -o $(shell basename ./$@).red
+
+clean:
+	@rm -f *.red
+fclean: clean
+re: fclean all
